@@ -1,0 +1,36 @@
+import tensorflow as tf
+import keras
+import numpy as np
+f = open("data","r")
+d = (f.read())
+data = d.split("\n")
+data.reverse()
+dataf = []
+count = []
+for i in range (len(data)):
+    count.append(float(i))
+    dataf.append(float(data[i]))
+print(count)
+print(len(data))
+print(dataf)
+
+X_train = count
+y_train = dataf
+
+dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+train_data = dataset.shuffle(len(X_train)).batch(32)
+train_data = train_data.prefetch(
+        buffer_size=tf.data.experimental.AUTOTUNE)
+
+tfmodel = tf.keras.Sequential([
+                  tf.keras.layers.Dense(15, activation=tf.nn.relu, input_shape=(18,)),
+                  tf.keras.layers.Flatten(),
+                  tf.keras.layers.Dense(10, activation=tf.nn.relu),
+                  tf.keras.layers.Dense(4, activation=tf.nn.softmax)
+])
+
+tfmodel.compile(optimizer='adam',
+                loss=tf.keras.losses.CategoricalCrossentropy(),
+                metrics=['accuracy'])
+
+tfmodel.fit(train_data, epochs=50)
